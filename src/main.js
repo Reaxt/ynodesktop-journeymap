@@ -64,6 +64,13 @@ app.whenReady().then(async () => {
     return newState;
   });
 
+  ipcMain.handle('logMapChange', (event, location) => {
+    console.log(`[Journey Map] Location changed to "${location}"`);
+  });
+  ipcMain.handle('loadJourneyMap', () => {
+    console.log("openmap")
+  });
+
   if (store.get('discordRpcEnabled', true)) {
     startRpc();
   }

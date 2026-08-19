@@ -11,7 +11,7 @@ const promptInjection = require('./scripts/promptinjection');
 const titlebar = require('./scripts/titlebar');
 const path = require('path');
 const { parseGameName, isDreamWorldMap } = require('./scripts/utils');
-
+const { setupMapHook } = require('./scripts/2kkiJourneyMap');
 // electron-store and electron-context-menu are ESM-only from v9 / v4 respectively.
 // Loaded lazily via dynamic import inside initModules() so this CommonJS file can still require().
 let contextMenu, Store, store;
@@ -161,6 +161,8 @@ function createWindow() {
   mainWindow.webContents.on('did-finish-load', () => {
     titlebar(mainWindow);
     promptInjection(mainWindow);
+    setupMapHook(mainWindow);
+
     mainWindow.webContents.executeJavaScript(`
       if (document.title !== "Yume Nikki Online Project") {
         document.getElementById('content').style.overflow = 'hidden';

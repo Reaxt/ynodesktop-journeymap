@@ -4,6 +4,9 @@ contextBridge.exposeInMainWorld("electronAPI", {
   minimize: () => ipcRenderer.send("minimize"),
   maximize: () => ipcRenderer.send("maximize"),
   toggleDiscordRpc: () => ipcRenderer.invoke("toggleDiscordRpc"),
+  loadJourneyMap: () => ipcRenderer.invoke("loadJourneyMap"),
+  saveJourneyMap: () => ipcRenderer.invoke("saveJourneyMap"),
+  logMapChange: (location) => ipcRenderer.invoke("logMapChange", location),
   getDiscordRpcEnabled: () => ipcRenderer.invoke("getDiscordRpcEnabled"),
 });
 

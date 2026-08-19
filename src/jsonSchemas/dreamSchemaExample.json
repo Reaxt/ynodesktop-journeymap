@@ -1,0 +1,14 @@
+{
+    "dreamID":0,
+    "timestamp":1787164522,
+    "game":"2kki",
+    "path": [
+        {
+            "timestamp":1787164522,
+            "world":"dreamWorldName"
+        }, {
+            "timestamp":1787174522,
+            "world":"dreamWorldName2"
+        }
+    ]
+}

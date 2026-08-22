@@ -64,8 +64,8 @@ app.whenReady().then(async () => {
     return newState;
   });
 
-  ipcMain.handle('logMapChange', (event, location) => {
-    console.log(`[Journey Map] Location changed to "${location}"`);
+  ipcMain.handle('logMapChange', (event, mapId, locationTitle, wikiLink) => {
+    console.log(`[Journey Map] Location changed to "${locationTitle}" (Map ID: ${mapId}, Wiki Link: ${wikiLink})`);
   });
   ipcMain.handle('loadJourneyMap', () => {
     console.log("openmap")

@@ -1,24 +1,87 @@
 const { parseGameName } = require('./utils');
+const { dialog } = require('electron')
+const fs  = require('fs');
+const { app } = require('electron');
 
+const notDreamingMapIds = [
+  "0002", // urotsuki's room
+  "0003", // urotsuki's balcony
+  "0620", // sound room
+]
 
+const dreamJson = {
+  dreaming: false,
+  game: "2kki",
+  dreams: []
+}
+let currentDream = {
+  dreamID: null,
+  timestamp: null,
+  locations: []
+}
+function startupCheck() {
 
-
-
-
-async function fetchLocationText(webContents) {
-  try {
-    return await webContents.executeJavaScript(`
-      (() => {
-        const el = document.querySelector('#locationText a');
-        return el
-          ? { locationText: el.innerText || null, locationUrl: el.href || null }
-          : { locationText: null, locationUrl: null };
-      })()
-    `);
-  } catch {
-    return { locationText: null, locationUrl: null };
+}
+function loadJourneyMap(mainWindow) {
+  let path = app.getAppPath()
+  console.log("loading journey map from " + path + "\\journeyMap.json");
+  var mapToLoad = dialog.showOpenDialogSync({
+    title: 'Load Journey Map',
+    defaultPath: path + "\\journeyMap.json",
+    filters: [{ name: 'JSON File', extensions: ['json'] }],
+    properties: ['openFile']
+  });
+  let data = fs.readFileSync(mapToLoad, 'utf-8');
+  dreamJson = JSON.parse(data);
+}
+function saveJourneyMap(mainWindow) {
+  let path = app.getAppPath()
+  console.log("saving journey map to " + path + "\\journeyMap.json");
+  var mapToSave = dialog.showSaveDialogSync({
+    title: 'Save Journey Map',
+    defaultPath: "journeyMap.json",
+    filters: [{ name: 'JSON File', extensions: ['json'] }],
+    properties: ['createDirectory', "dontAddToRecent"]
+  });
+  fs.writeFileSync(mapToSave, JSON.stringify(dreamJson, null, 2), 'utf-8');
+}
+function mapUpdate(mapId, locationTitle, wikiLink) {
+  console.log(dreamJson)
+  console.log()
+  // yayyy now we start mutating our json
+  if (dreamJson.dreaming) {
+    if(notDreamingMapIds.includes(mapId)) {
+      // we have finished the dream.
+      dreamJson.dreaming = false;
+      dreamJson.dreams.push(currentDream);
+      //if autosaving is on, save to the json file
+    } else {
+      currentDream.locations.push({
+        timestamp: Math.floor(Date.now() / 1000),
+        mapId: mapId,
+        title: locationTitle,
+        wikiLink: wikiLink
+      })
+    }
+  } else {
+    if(!notDreamingMapIds.includes(mapId)) {
+      // we have started a dream.
+      dreamJson.dreaming = true;
+      currentDream = {
+          dreamID: dreamJson.dreams.length,
+          timestamp: Math.floor(Date.now() / 1000),
+          locations: []
+      }
+      currentDream.locations = [{
+        timestamp: Math.floor(Date.now() / 1000),
+        mapId: mapId,
+        title: locationTitle,
+        wikiLink: wikiLink
+      }];
+    }
   }
 }
+
 function setupMapHook(mainWindow) {
     var currentUrl = mainWindow.webContents.getURL();
     if(currentUrl == "https://ynoproject.net/2kki/") {
@@ -71,11 +134,7 @@ function set2kkiClientLocationHook(mapId, prevMapId, locations, prevLocations, c
     }
 }
 
-function mapUpdate(mapId, locationTitle, wikiLink) {
-  // yayyy now we start mutating our json
-}
-
-module.exports = { setupMapHook };
+module.exports = { setupMapHook, loadJourneyMap, saveJourneyMap, mapUpdate, startupCheck };
 
 //hooks to
 //- onLoad2kkiMap(set2kkiClientLocation) and -checkUpdateLocation

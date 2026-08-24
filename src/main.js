@@ -9,7 +9,7 @@ const {
 } = require('./createApp');
 const { connectDiscordRpc, updateRichPresence, clearPresence } = require('./scripts/discordRpcUtils');
 const { checkForUpdates } = require('./scripts/updateChecker');
-
+const { loadJourneyMap, saveJourneyMap, mapUpdate, startupCheck } = require('./scripts/2kkiJourneyMap');
 // Linux/Wayland fix: Electron 43 (Chromium) defaults to a Vulkan graphics
 // backend that is incompatible with the Wayland ozone platform. The GPU process
 // fails to initialize, which cascades into the network service crashing and a
@@ -66,11 +66,15 @@ app.whenReady().then(async () => {
 
   ipcMain.handle('logMapChange', (event, mapId, locationTitle, wikiLink) => {
     console.log(`[Journey Map] Location changed to "${locationTitle}" (Map ID: ${mapId}, Wiki Link: ${wikiLink})`);
+    mapUpdate(mapId, locationTitle, wikiLink);
   });
-  ipcMain.handle('loadJourneyMap', () => {
-    console.log("openmap")
+  ipcMain.handle('loadJourneyMap', (mainWindow) => {
+    loadJourneyMap(mainWindow);
   });
-
+  ipcMain.handle('saveJourneyMap', (mainWindow) => {
+    saveJourneyMap(mainWindow);
+  });
+  startupCheck();
   if (store.get('discordRpcEnabled', true)) {
     startRpc();
   }

@@ -9,7 +9,7 @@ const notDreamingMapIds = [
   "0620", // sound room
 ]
 
-const dreamJson = {
+var dreamJson = {
   dreaming: false,
   game: "2kki",
   dreams: []
@@ -31,7 +31,7 @@ function loadJourneyMap(mainWindow) {
     filters: [{ name: 'JSON File', extensions: ['json'] }],
     properties: ['openFile']
   });
-  let data = fs.readFileSync(mapToLoad, 'utf-8');
+  let data = fs.readFileSync(mapToLoad[0], 'utf-8');
   dreamJson = JSON.parse(data);
 }
 function saveJourneyMap(mainWindow) {
